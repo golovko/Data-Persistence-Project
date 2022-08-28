@@ -63,3 +63,4 @@ public class Leaderboard : MonoBehaviour
             leaderListText.text = "No entry";
         }
     }
+}
