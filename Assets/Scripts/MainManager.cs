@@ -11,20 +11,26 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text BestScoreText;
+    private int BestScoreAmount;
+    private string BestScoreName;
+
     public GameObject GameOverText;
-    
+    public GameObject OpenLeaderboardButton;
+
+
     private bool m_Started = false;
-    private int m_Points;
+    public int m_Points;
     
     private bool m_GameOver = false;
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
+
         int[] pointCountArray = new [] {1,1,2,2,5,5};
         for (int i = 0; i < LineCount; ++i)
         {
@@ -36,6 +42,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        GlobalManager.Instance.LoadLeader();
+        ShowBestScore();
     }
 
     private void Update()
@@ -55,22 +63,51 @@ public class MainManager : MonoBehaviour
         }
         else if (m_GameOver)
         {
+           
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                SceneManager.LoadScene(0);
             }
+
         }
     }
+
 
     void AddPoint(int point)
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+        
+
+    }
+
+    public void ShowBestScore()
+    {
+            BestScoreName =  GlobalManager.Instance.LeaderName;
+            BestScoreAmount = GlobalManager.Instance.LeaderScore;
+            BestScoreText.text = "Best score: " + BestScoreName + " – " + BestScoreAmount;
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        OpenLeaderboardButton.SetActive(true);
+        GlobalManager.Instance.IsBestScore = false;
+
+        if (m_Points > GlobalManager.Instance.LeaderScore)
+        {
+
+            GlobalManager.Instance.Score = m_Points;
+            BestScoreText.text = "New best score!";
+            GlobalManager.Instance.IsBestScore = true;
+        }
+
     }
+
+    public void OpenLeaderboard()
+    {
+        SceneManager.LoadScene(1);
+    }
+
 }
